@@ -36,7 +36,7 @@ pip install requests
 
 ### Initialize the SDK
 ```python
-from momo_psb_api import MoMoPSBAPI
+from momo_psb import MoMoPSBAPI
 
 # Replace with your details
 BASE_URL = "https://sandbox.momodeveloper.mtn.com"
@@ -145,5 +145,3 @@ except Exception as e:
 - [Python Requests Documentation](https://docs.python-requests.org/en/latest/)
 
 ---
-
-Start integrating with MTN MoMo API today with **MoMoPSBAPI Python SDK**! For questions or contributions, feel free to contact us or submit an issue on GitHub.
