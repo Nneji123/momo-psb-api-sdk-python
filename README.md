@@ -27,7 +27,7 @@ Welcome to the **MoMoPSBAPI Python SDK**! This SDK enables developers to integra
 ## Installation
 Install the required dependencies:
 ```bash
-pip install requests
+pip install momo-psb
 ```
 
 ---
