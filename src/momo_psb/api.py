@@ -1,4 +1,8 @@
-from typing import Dict, Any, Optional, List
+from typing import Any, Dict, List, Optional
+
+import requests
+from requests.auth import HTTPBasicAuth
+
 
 class MoMoPSBAPI:
     """
@@ -14,11 +18,11 @@ class MoMoPSBAPI:
         """
         self.base_url = base_url.rstrip("/")
         self.subscription_key = subscription_key
-        self.headers = {
-            "Ocp-Apim-Subscription-Key": self.subscription_key
-        }
+        self.headers = {"Ocp-Apim-Subscription-Key": self.subscription_key}
 
-    def create_api_user(self, reference_id: str, provider_callback_host: str) -> requests.Response:
+    def create_api_user(
+        self, reference_id: str, provider_callback_host: str
+    ) -> requests.Response:
         """
         Create a new API User.
 
@@ -66,20 +70,30 @@ class MoMoPSBAPI:
         auth = HTTPBasicAuth(api_user, api_key)
         headers = {
             "X-Target-Environment": "sandbox",
-            **self.headers  # Include other headers like 'Ocp-Apim-Subscription-Key'
+            **self.headers,  # Include other headers like 'Ocp-Apim-Subscription-Key'
         }
         payload = {"grant_type": "client_credentials"}
-        
+
         # Use `auth` to handle the Authorization header
         response = requests.post(url, data=payload, headers=headers, auth=auth)
-        
+
         # Debugging output to inspect the Authorization header
         prepared_request = response.request
         print(f"Request Headers: {prepared_request.headers}")
-        
+
         return response
 
-    def request_to_pay(self, reference_id: str, access_token: str, amount: float, currency: str, external_id: str, payer: Dict[str, str], payer_message: str, payee_note: str) -> requests.Response:
+    def request_to_pay(
+        self,
+        reference_id: str,
+        access_token: str,
+        amount: float,
+        currency: str,
+        external_id: str,
+        payer: Dict[str, str],
+        payer_message: str,
+        payee_note: str,
+    ) -> requests.Response:
         """
         Request a payment from a consumer (Payer).
 
@@ -99,7 +113,7 @@ class MoMoPSBAPI:
             "X-Callback-Url": "https://clinic.com",  # Add your callback URL here if needed
             "X-Reference-Id": reference_id,
             "X-Target-Environment": "sandbox",
-            **self.headers  # Include other headers like 'Ocp-Apim-Subscription-Key'
+            **self.headers,  # Include other headers like 'Ocp-Apim-Subscription-Key'
         }
         payload = {
             "amount": float(amount),
@@ -107,7 +121,7 @@ class MoMoPSBAPI:
             "externalId": external_id,
             "payer": payer,
             "payerMessage": payer_message,
-            "payeeNote": payee_note
+            "payeeNote": payee_note,
         }
         response = requests.post(url, json=payload, headers=headers)
         return response
@@ -124,7 +138,9 @@ class MoMoPSBAPI:
         else:
             response.raise_for_status()
 
-    def get_account_balance(self, access_token: str, target_environment: str = "sandbox") -> Dict[str, Any]:
+    def get_account_balance(
+        self, access_token: str, target_environment: str = "sandbox"
+    ) -> Dict[str, Any]:
         """
         Get the balance of the account.
 
@@ -136,12 +152,18 @@ class MoMoPSBAPI:
         headers = {
             "Authorization": f"Bearer {access_token}",
             "X-Target-Environment": target_environment,
-            **self.headers
+            **self.headers,
         }
         response = requests.get(url, headers=headers)
         return self.validate_response(response)
 
-    def validate_account_holder_status(self, access_token: str, account_holder_id_type: str, account_holder_id: str, target_environment: str = "sandbox") -> Dict[str, Any]:
+    def validate_account_holder_status(
+        self,
+        access_token: str,
+        account_holder_id_type: str,
+        account_holder_id: str,
+        target_environment: str = "sandbox",
+    ) -> Dict[str, Any]:
         """
         Validate the status of an account holder.
 
@@ -155,12 +177,14 @@ class MoMoPSBAPI:
         headers = {
             "Authorization": f"Bearer {access_token}",
             "X-Target-Environment": target_environment,
-            **self.headers
+            **self.headers,
         }
         response = requests.get(url, headers=headers)
         return self.validate_response(response)
 
-    def get_request_to_pay_status(self, reference_id: str, access_token: str, target_environment: str = "sandbox") -> Dict[str, Any]:
+    def get_request_to_pay_status(
+        self, reference_id: str, access_token: str, target_environment: str = "sandbox"
+    ) -> Dict[str, Any]:
         """
         Get the status of a request to pay transaction.
 
@@ -173,12 +197,18 @@ class MoMoPSBAPI:
         headers = {
             "Authorization": f"Bearer {access_token}",
             "X-Target-Environment": target_environment,
-            **self.headers
+            **self.headers,
         }
         response = requests.get(url, headers=headers)
         return self.validate_response(response)
 
-    def get_basic_user_info(self, access_token: str, account_holder_id_type: str, account_holder_id: str, target_environment: str = "sandbox") -> Dict[str, Any]:
+    def get_basic_user_info(
+        self,
+        access_token: str,
+        account_holder_id_type: str,
+        account_holder_id: str,
+        target_environment: str = "sandbox",
+    ) -> Dict[str, Any]:
         """
         Get basic user information of an account holder.
 
@@ -192,12 +222,23 @@ class MoMoPSBAPI:
         headers = {
             "Authorization": f"Bearer {access_token}",
             "X-Target-Environment": target_environment,
-            **self.headers
+            **self.headers,
         }
         response = requests.get(url, headers=headers)
         return self.validate_response(response)
 
-    def request_to_withdraw(self, reference_id: str, access_token: str, amount: float, currency: str, external_id: str, payer: Dict[str, str], payer_message: str, payee_note: str, target_environment: str = "sandbox") -> requests.Response:
+    def request_to_withdraw(
+        self,
+        reference_id: str,
+        access_token: str,
+        amount: float,
+        currency: str,
+        external_id: str,
+        payer: Dict[str, str],
+        payer_message: str,
+        payee_note: str,
+        target_environment: str = "sandbox",
+    ) -> requests.Response:
         """
         Request a withdrawal from a consumer (Payer).
 
@@ -218,7 +259,7 @@ class MoMoPSBAPI:
             "X-Callback-Url": "https://clinic.com",  # Add your callback URL here if needed
             "X-Reference-Id": reference_id,
             "X-Target-Environment": target_environment,
-            **self.headers
+            **self.headers,
         }
         payload = {
             "amount": float(amount),
@@ -226,12 +267,14 @@ class MoMoPSBAPI:
             "externalId": external_id,
             "payer": payer,
             "payerMessage": payer_message,
-            "payeeNote": payee_note
+            "payeeNote": payee_note,
         }
         response = requests.post(url, json=payload, headers=headers)
         return response
 
-    def get_request_to_withdraw_status(self, reference_id: str, access_token: str, target_environment: str = "sandbox") -> Dict[str, Any]:
+    def get_request_to_withdraw_status(
+        self, reference_id: str, access_token: str, target_environment: str = "sandbox"
+    ) -> Dict[str, Any]:
         """
         Get the status of a request to withdraw transaction.
 
@@ -244,12 +287,24 @@ class MoMoPSBAPI:
         headers = {
             "Authorization": f"Bearer {access_token}",
             "X-Target-Environment": target_environment,
-            **self.headers
+            **self.headers,
         }
         response = requests.get(url, headers=headers)
         return self.validate_response(response)
 
-    def create_invoice(self, reference_id: str, access_token: str, external_id: str, amount: float, currency: str, validity_duration: str, intended_payer: Dict[str, str], payee: Dict[str, str], description: Optional[str] = None, target_environment: str = "sandbox") -> requests.Response:
+    def create_invoice(
+        self,
+        reference_id: str,
+        access_token: str,
+        external_id: str,
+        amount: float,
+        currency: str,
+        validity_duration: str,
+        intended_payer: Dict[str, str],
+        payee: Dict[str, str],
+        description: Optional[str] = None,
+        target_environment: str = "sandbox",
+    ) -> requests.Response:
         """
         Create an invoice that can be paid by an intended payer.
 
@@ -271,7 +326,7 @@ class MoMoPSBAPI:
             "X-Callback-Url": "https://clinic.com",  # Add your callback URL here if needed
             "X-Reference-Id": reference_id,
             "X-Target-Environment": target_environment,
-            **self.headers
+            **self.headers,
         }
         payload = {
             "externalId": external_id,
@@ -280,12 +335,14 @@ class MoMoPSBAPI:
             "validityDuration": validity_duration,
             "intendedPayer": intended_payer,
             "payee": payee,
-            "description": description
+            "description": description,
         }
         response = requests.post(url, json=payload, headers=headers)
         return response
 
-    def get_invoice_status(self, reference_id: str, access_token: str, target_environment: str = "sandbox") -> Dict[str, Any]:
+    def get_invoice_status(
+        self, reference_id: str, access_token: str, target_environment: str = "sandbox"
+    ) -> Dict[str, Any]:
         """
         Get the status of an invoice.
 
@@ -298,12 +355,18 @@ class MoMoPSBAPI:
         headers = {
             "Authorization": f"Bearer {access_token}",
             "X-Target-Environment": target_environment,
-            **self.headers
+            **self.headers,
         }
         response = requests.get(url, headers=headers)
         return self.validate_response(response)
 
-    def cancel_invoice(self, reference_id: str, access_token: str, external_id: str, target_environment: str = "sandbox") -> requests.Response:
+    def cancel_invoice(
+        self,
+        reference_id: str,
+        access_token: str,
+        external_id: str,
+        target_environment: str = "sandbox",
+    ) -> requests.Response:
         """
         Cancel an invoice.
 
@@ -317,15 +380,22 @@ class MoMoPSBAPI:
         headers = {
             "Authorization": f"Bearer {access_token}",
             "X-Target-Environment": target_environment,
-            **self.headers
+            **self.headers,
         }
-        payload = {
-            "externalId": external_id
-        }
+        payload = {"externalId": external_id}
         response = requests.delete(url, json=payload, headers=headers)
         return response
 
-    def create_pre_approval(self, reference_id: str, access_token: str, payer: Dict[str, str], payer_currency: str, payer_message: str, validity_time: int, target_environment: str = "sandbox") -> requests.Response:
+    def create_pre_approval(
+        self,
+        reference_id: str,
+        access_token: str,
+        payer: Dict[str, str],
+        payer_currency: str,
+        payer_message: str,
+        validity_time: int,
+        target_environment: str = "sandbox",
+    ) -> requests.Response:
         """
         Create a pre-approval for a payment.
 
@@ -344,18 +414,20 @@ class MoMoPSBAPI:
             "X-Callback-Url": "https://clinic.com",  # Add your callback URL here if needed
             "X-Reference-Id": reference_id,
             "X-Target-Environment": target_environment,
-            **self.headers
+            **self.headers,
         }
         payload = {
             "payer": payer,
             "payerCurrency": payer_currency,
             "payerMessage": payer_message,
-            "validityTime": validity_time
+            "validityTime": validity_time,
         }
         response = requests.post(url, json=payload, headers=headers)
         return response
 
-    def get_pre_approval_status(self, reference_id: str, access_token: str, target_environment: str = "sandbox") -> Dict[str, Any]:
+    def get_pre_approval_status(
+        self, reference_id: str, access_token: str, target_environment: str = "sandbox"
+    ) -> Dict[str, Any]:
         """
         Get the status of a pre-approval.
 
@@ -368,12 +440,17 @@ class MoMoPSBAPI:
         headers = {
             "Authorization": f"Bearer {access_token}",
             "X-Target-Environment": target_environment,
-            **self.headers
+            **self.headers,
         }
         response = requests.get(url, headers=headers)
         return self.validate_response(response)
 
-    def cancel_pre_approval(self, preapproval_id: str, access_token: str, target_environment: str = "sandbox") -> requests.Response:
+    def cancel_pre_approval(
+        self,
+        preapproval_id: str,
+        access_token: str,
+        target_environment: str = "sandbox",
+    ) -> requests.Response:
         """
         Cancel a pre-approval.
 
@@ -386,12 +463,18 @@ class MoMoPSBAPI:
         headers = {
             "Authorization": f"Bearer {access_token}",
             "X-Target-Environment": target_environment,
-            **self.headers
+            **self.headers,
         }
         response = requests.delete(url, headers=headers)
         return response
 
-    def get_approved_pre_approvals(self, account_holder_id_type: str, account_holder_id: str, access_token: str, target_environment: str = "sandbox") -> List[Dict[str, Any]]:
+    def get_approved_pre_approvals(
+        self,
+        account_holder_id_type: str,
+        account_holder_id: str,
+        access_token: str,
+        target_environment: str = "sandbox",
+    ) -> List[Dict[str, Any]]:
         """
         Get approved pre-approvals of an account holder.
 
@@ -405,12 +488,22 @@ class MoMoPSBAPI:
         headers = {
             "Authorization": f"Bearer {access_token}",
             "X-Target-Environment": target_environment,
-            **self.headers
+            **self.headers,
         }
         response = requests.get(url, headers=headers)
         return self.validate_response(response)
 
-    def create_payment(self, reference_id: str, access_token: str, external_transaction_id: str, amount: float, currency: str, customer_reference: str, service_provider_user_name: str, target_environment: str = "sandbox") -> requests.Response:
+    def create_payment(
+        self,
+        reference_id: str,
+        access_token: str,
+        external_transaction_id: str,
+        amount: float,
+        currency: str,
+        customer_reference: str,
+        service_provider_user_name: str,
+        target_environment: str = "sandbox",
+    ) -> requests.Response:
         """
         Create a payment for an external bill or air-time top-up.
 
@@ -430,21 +523,20 @@ class MoMoPSBAPI:
             "X-Callback-Url": "https://clinic.com",  # Add your callback URL here if needed
             "X-Reference-Id": reference_id,
             "X-Target-Environment": target_environment,
-            **self.headers
+            **self.headers,
         }
         payload = {
             "externalTransactionId": external_transaction_id,
-            "money": {
-                "amount": float(amount),
-                "currency": currency
-            },
+            "money": {"amount": float(amount), "currency": currency},
             "customerReference": customer_reference,
-            "serviceProviderUserName": service_provider_user_name
+            "serviceProviderUserName": service_provider_user_name,
         }
         response = requests.post(url, json=payload, headers=headers)
         return response
 
-    def get_payment_status(self, reference_id: str, access_token: str, target_environment: str = "sandbox") -> Dict[str, Any]:
+    def get_payment_status(
+        self, reference_id: str, access_token: str, target_environment: str = "sandbox"
+    ) -> Dict[str, Any]:
         """
         Get the status of a payment.
 
@@ -457,7 +549,7 @@ class MoMoPSBAPI:
         headers = {
             "Authorization": f"Bearer {access_token}",
             "X-Target-Environment": target_environment,
-            **self.headers
+            **self.headers,
         }
         response = requests.get(url, headers=headers)
         return self.validate_response(response)

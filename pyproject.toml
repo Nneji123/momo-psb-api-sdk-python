@@ -1,7 +1,7 @@
 [project]
 name = "momo-psb"
-version = "0.1.0"
-description = "A Python SDK for integrating with the MTN MoMo API (Payment Service Bank)"
+version = "0.2.0"
+description = "A Python SDK and CLI tool for integrating with the MTN MoMo API (Payment Service Bank)"
 readme = "README.md"
 authors = [
     { name = "Ifeanyi Nneji", email = "ifeanyinneji777@gmail.com" }
@@ -13,19 +13,71 @@ requires-python = ">=3.12"
 keywords = ["MTN", "MoMo", "API", "SDK", "Python", "Payment", "Mobile Money"]
 
 dependencies = [
-    "requests>=2.25.1"
+    "click>=8.1.8",
+    "requests>=2.25.1",
 ]
 
 classifiers = [
+    # Development Status
     "Development Status :: 4 - Beta",
+    
+    # Intended Audience
     "Intended Audience :: Developers",
+    "Intended Audience :: Financial and Insurance Industry",
+    "Intended Audience :: Information Technology",
+    "Intended Audience :: Telecommunications Industry",
+    
+    # License
     "License :: OSI Approved :: MIT License",
+    
+    # Programming Language
+    "Programming Language :: Python",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: Implementation :: CPython",
+    
+    # Environment
+    "Environment :: Console",
+    "Environment :: Web Environment",
+    
+    # Operating System
+    "Operating System :: OS Independent",
+    
+    # Framework
+    "Framework :: AsyncIO",
+    "Framework :: Pytest",
+    
+    # Topics
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: Internet",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
+    "Topic :: Communications",
+    "Topic :: Office/Business",
+    "Topic :: Office/Business :: Financial",
+    "Topic :: Office/Business :: Financial :: Point-Of-Sale",
+    "Topic :: Security",
+    "Topic :: System :: Systems Administration",
+    "Topic :: Utilities",
+    
+    # Natural Language
+    "Natural Language :: English",
+    
+    # Typing
+    "Typing :: Typed",
 ]
+
+[project.scripts]
+momo-psb = "momo_psb.cli:main"
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-v"
+testpaths = [
+    "tests",
+]

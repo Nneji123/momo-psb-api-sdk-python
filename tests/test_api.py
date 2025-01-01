@@ -1,95 +1,187 @@
-import os
-import uuid
-import pytest
-from unittest.mock import patch, MagicMock
-from momo_psb import MoMoPSBAPI
+from requests.models import Response
 
-@pytest.fixture
-def momo_psb_api():
-    base_url = os.getenv("BASE_URL", "https://sandbox.momodeveloper.mtn.com")
-    subscription_key = os.getenv("SUBSCRIPTION_KEY", "test_subscription_key")
-    return MoMoPSBAPI(base_url, subscription_key)
+from tests.conftest import REFERENCE_ID
 
-@patch("requests.post")
-def test_create_api_user(mock_post, momo_psb_api):
-    reference_id = str(uuid.uuid4())
-    provider_callback_host = "https://example.com/callback"
 
-    mock_response = MagicMock()
-    mock_response.status_code = 201
-    mock_response.json.return_value = {"message": "API user created successfully"}
-    mock_post.return_value = mock_response
+def test_create_api_user(api_user):
+    assert api_user == REFERENCE_ID
 
-    response = momo_psb_api.create_api_user(reference_id, provider_callback_host)
 
-    assert response.status_code == 201
-    assert response.json() == {"message": "API user created successfully"}
+def test_create_api_key(api_key):
+    assert isinstance(api_key, str)
 
-@patch("requests.post")
-def test_create_api_key(mock_post, momo_psb_api):
-    api_user = str(uuid.uuid4())
 
-    mock_response = MagicMock()
-    mock_response.status_code = 201
-    mock_response.json.return_value = {"apiKey": "test_api_key"}
-    mock_post.return_value = mock_response
+def test_get_oauth_token(access_token):
+    assert isinstance(access_token, str)
 
-    response = momo_psb_api.create_api_key(api_user)
 
-    assert response.status_code == 201
-    assert response.json() == {"apiKey": "test_api_key"}
-
-@patch("requests.get")
-def test_get_api_user_details(mock_get, momo_psb_api):
-    api_user = str(uuid.uuid4())
-
-    mock_response = MagicMock()
-    mock_response.status_code = 200
-    mock_response.json.return_value = {"status": "active"}
-    mock_get.return_value = mock_response
-
-    response = momo_psb_api.get_api_user_details(api_user)
-
-    assert response.status_code == 200
-    assert response.json() == {"status": "active"}
-
-@patch("requests.post")
-def test_get_oauth_token(mock_post, momo_psb_api):
-    api_user = str(uuid.uuid4())
-    api_key = "test_api_key"
-
-    mock_response = MagicMock()
-    mock_response.status_code = 200
-    mock_response.json.return_value = {"access_token": "test_access_token"}
-    mock_post.return_value = mock_response
-
-    response = momo_psb_api.get_oauth_token(api_user, api_key)
-
-    assert response.status_code == 200
-    assert response.json()["access_token"] == "test_access_token"
-
-@patch("requests.post")
-def test_request_to_pay(mock_post, momo_psb_api):
-    reference_id = str(uuid.uuid4())
-    access_token = "test_access_token"
-    amount = "100.00"
-    currency = "EUR"
-    external_id = "ext_id_123"
-    payer = {
-        "partyIdType": "MSISDN",
-        "partyId": "256774000000"
-    }
-    payer_message = "Payment for services"
-    payee_note = "Thank you for your payment"
-
-    mock_response = MagicMock()
-    mock_response.status_code = 202
-    mock_response.json.return_value = {"status": "pending"}
-    mock_post.return_value = mock_response
-
-    response = momo_psb_api.request_to_pay(
-        reference_id, access_token, amount, currency, external_id, payer, payer_message, payee_note
+def test_request_to_pay(momo_api, access_token):
+    response = momo_api.request_to_pay(
+        reference_id=REFERENCE_ID,
+        access_token=access_token,
+        amount=AMOUNT,
+        currency=CURRENCY,
+        external_id=EXTERNAL_ID,
+        payer=PAYER,
+        payer_message=PAYER_MESSAGE,
+        payee_note=PAYEE_NOTE,
     )
+    assert isinstance(response, Response)
+    assert response.status_code in (200, 201)
 
-    assert response.status_code == 202
-    assert response.json()["status"] == "pending"
+
+def test_get_account_balance(momo_api, access_token):
+    response = momo_api.get_account_balance(access_token=access_token)
+    assert isinstance(response, dict)
+    assert "balance" in response
+
+
+def test_validate_account_holder_status(momo_api, access_token):
+    response = momo_api.validate_account_holder_status(
+        access_token=access_token,
+        account_holder_id_type="MSISDN",
+        account_holder_id="1234567890",
+    )
+    assert isinstance(response, dict)
+    assert "status" in response
+
+
+def test_get_request_to_pay_status(momo_api, access_token):
+    response = momo_api.get_request_to_pay_status(
+        reference_id=REFERENCE_ID,
+        access_token=access_token,
+    )
+    assert isinstance(response, dict)
+    assert "status" in response
+
+
+def test_get_basic_user_info(momo_api, access_token):
+    response = momo_api.get_basic_user_info(
+        access_token=access_token,
+        account_holder_id_type="MSISDN",
+        account_holder_id="1234567890",
+    )
+    assert isinstance(response, dict)
+    assert "userInfo" in response
+
+
+def test_request_to_withdraw(momo_api, access_token):
+    response = momo_api.request_to_withdraw(
+        reference_id=REFERENCE_ID,
+        access_token=access_token,
+        amount=AMOUNT,
+        currency=CURRENCY,
+        external_id=EXTERNAL_ID,
+        payer=PAYER,
+        payer_message=PAYER_MESSAGE,
+        payee_note=PAYEE_NOTE,
+    )
+    assert isinstance(response, Response)
+    assert response.status_code in (200, 201)
+
+
+def test_get_request_to_withdraw_status(momo_api, access_token):
+    response = momo_api.get_request_to_withdraw_status(
+        reference_id=REFERENCE_ID,
+        access_token=access_token,
+    )
+    assert isinstance(response, dict)
+    assert "status" in response
+
+
+def test_create_invoice(momo_api, access_token):
+    response = momo_api.create_invoice(
+        reference_id=REFERENCE_ID,
+        access_token=access_token,
+        external_id=EXTERNAL_ID,
+        amount=AMOUNT,
+        currency=CURRENCY,
+        validity_duration="3600",
+        intended_payer=PAYER,
+        payee=PAYER,
+    )
+    assert isinstance(response, Response)
+    assert response.status_code in (200, 201)
+
+
+def test_get_invoice_status(momo_api, access_token):
+    response = momo_api.get_invoice_status(
+        reference_id=REFERENCE_ID,
+        access_token=access_token,
+    )
+    assert isinstance(response, dict)
+    assert "status" in response
+
+
+def test_cancel_invoice(momo_api, access_token):
+    response = momo_api.cancel_invoice(
+        reference_id=REFERENCE_ID,
+        access_token=access_token,
+        external_id=EXTERNAL_ID,
+    )
+    assert isinstance(response, Response)
+    assert response.status_code in (200, 204)
+
+
+def test_create_pre_approval(momo_api, access_token):
+    response = momo_api.create_pre_approval(
+        reference_id=REFERENCE_ID,
+        access_token=access_token,
+        payer=PAYER,
+        payer_currency=CURRENCY,
+        payer_message=PAYER_MESSAGE,
+        validity_time=3600,
+    )
+    assert isinstance(response, Response)
+    assert response.status_code in (200, 201)
+
+
+def test_get_pre_approval_status(momo_api, access_token):
+    response = momo_api.get_pre_approval_status(
+        reference_id=REFERENCE_ID,
+        access_token=access_token,
+    )
+    assert isinstance(response, dict)
+    assert "status" in response
+
+
+def test_cancel_pre_approval(momo_api, access_token):
+    response = momo_api.cancel_pre_approval(
+        preapproval_id=REFERENCE_ID,
+        access_token=access_token,
+    )
+    assert isinstance(response, Response)
+    assert response.status_code in (200, 204)
+
+
+def test_get_approved_pre_approvals(momo_api, access_token):
+    response = momo_api.get_approved_pre_approvals(
+        account_holder_id_type="MSISDN",
+        account_holder_id="1234567890",
+        access_token=access_token,
+    )
+    assert isinstance(response, list)
+    assert len(response) >= 0
+
+
+def test_create_payment(momo_api, access_token):
+    response = momo_api.create_payment(
+        reference_id=REFERENCE_ID,
+        access_token=access_token,
+        external_transaction_id=EXTERNAL_ID,
+        amount=AMOUNT,
+        currency=CURRENCY,
+        customer_reference="test_customer",
+        service_provider_user_name="test_provider",
+    )
+    assert isinstance(response, Response)
+    assert response.status_code in (200, 201)
+
+
+def test_get_payment_status(momo_api, access_token):
+    response = momo_api.get_payment_status(
+        reference_id=REFERENCE_ID,
+        access_token=access_token,
+    )
+    assert isinstance(response, dict)
+    assert "status" in response
